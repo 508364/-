@@ -1,0 +1,58 @@
+#include <wx/wx.h>
+#include <vector>
+#include <string>
+
+class DNSConfigurationFrame : public wxFrame {
+public:
+    DNSConfigurationFrame(const wxString& title)
+        : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 200)) {
+        
+        wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+        wxStaticText* label = new wxStaticText(this, wxID_ANY, "Select a DNS server:");
+        mainSizer->Add(label, 0, wxALL | wxALIGN_LEFT, 10);
+
+        std::vector<std::string> defaultDNS = {
+            "114.114.114.114",
+            "8.8.4.4",
+            "192.168.0.1",
+            "8.8.8.8",
+            "223.5.5.5",
+            "180.76.76.76",
+            "119.29.29.29",
+            "101.226.4.6",
+            "123.125.81.6",
+            "223.6.6.6",
+            "114.114.115.115"
+        };
+
+        wxArrayString dnsChoices;
+        for (const auto& dns : defaultDNS) {
+            dnsChoices.Add(wxString(dns));
+        }
+        dnsChoices.Add(wxString("Custom"));
+
+        wxComboBox* dnsComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, dnsChoices);
+        mainSizer->Add(dnsComboBox, 0, wxALL | wxEXPAND, 10);
+
+        wxTextCtrl* customDNSCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+        customDNSCtrl->SetHint("Enter custom DNS server address");
+        mainSizer->Add(customDNSCtrl, 0, wxALL | wxEXPAND, 10);
+
+        wxButton* submitButton = new wxButton(this, wxID_ANY, "Submit");
+        mainSizer->Add(submitButton, 0, wxALL | wxALIGN_CENTER, 10);
+
+        SetSizerAndFit(mainSizer);
+    }
+};
+
+class DNSConfigurationApp : public wxApp {
+public:
+    virtual bool OnInit() {
+        DNSConfigurationFrame* frame = new DNSConfigurationFrame("DNS Configuration App");
+        frame->Show(true);
+        return true;
+    }
+};
+
+wxIMPLEMENT_APP(DNSConfigurationApp);
