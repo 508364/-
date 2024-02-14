@@ -1,18 +1,23 @@
-#include <wx/wx.h>
-#include <vector>
-#include <string>
+#include <QApplication>
+#include <QWidget>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QPushButton>
 
-class DNSConfigurationFrame : public wxFrame {
+class DNSConfigurationApp : public QWidget {
+    Q_OBJECT
+
 public:
-    DNSConfigurationFrame(const wxString& title)
-        : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 200)) {
+    DNSConfigurationApp(QWidget *parent = nullptr) : QWidget(parent) {
+        QVBoxLayout *layout = new QVBoxLayout(this);
         
-        wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-
-        wxStaticText* label = new wxStaticText(this, wxID_ANY, "Select a DNS server:");
-        mainSizer->Add(label, 0, wxALL | wxALIGN_LEFT, 10);
-
-        std::vector<std::string> defaultDNS = {
+        QLabel *label = new QLabel("Select a DNS server:", this);
+        layout->addWidget(label);
+        
+        dnsComboBox = new QComboBox(this);
+        defaultDNS = {
             "114.114.114.114",
             "8.8.4.4",
             "192.168.0.1",
@@ -25,34 +30,60 @@ public:
             "223.6.6.6",
             "114.114.115.115"
         };
-
-        wxArrayString dnsChoices;
-        for (const auto& dns : defaultDNS) {
-            dnsChoices.Add(wxString(dns));
+        for (const QString &dns : defaultDNS) {
+            dnsComboBox->addItem(dns);
         }
-        dnsChoices.Add(wxString("Custom"));
+        dnsComboBox->addItem("Custom");
+        connect(dnsComboBox, QOverload<int>::of(&QComboBox::activated), this, &DNSConfigurationApp::handleComboBoxActivated);
+        layout->addWidget(dnsComboBox);
 
-        wxComboBox* dnsComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, dnsChoices);
-        mainSizer->Add(dnsComboBox, 0, wxALL | wxEXPAND, 10);
+        customDNSLineEdit = new QLineEdit(this);
+        customDNSLineEdit->setPlaceholderText("Enter custom DNS server address");
+        layout->addWidget(customDNSLineEdit);
+        
+        QPushButton *submitButton = new QPushButton("Submit", this);
+        connect(submitButton, &QPushButton::clicked, this, &DNSConfigurationApp::handleSubmitButtonClicked);
+        layout->addWidget(submitButton);
 
-        wxTextCtrl* customDNSCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-        customDNSCtrl->SetHint("Enter custom DNS server address");
-        mainSizer->Add(customDNSCtrl, 0, wxALL | wxEXPAND, 10);
-
-        wxButton* submitButton = new wxButton(this, wxID_ANY, "Submit");
-        mainSizer->Add(submitButton, 0, wxALL | wxALIGN_CENTER, 10);
-
-        SetSizerAndFit(mainSizer);
+        selectedDNSLabel = new QLabel(this);
+        layout->addWidget(selectedDNSLabel);
     }
+
+private slots:
+    void handleComboBoxActivated(int index) {
+        if (index == defaultDNS.size()) {
+            customDNSLineEdit->setEnabled(true);
+        } else {
+            customDNSLineEdit->setEnabled(false);
+        }
+    }
+
+    void handleSubmitButtonClicked() {
+        QString selectedDNS;
+        if (dnsComboBox->currentIndex() == defaultDNS.size()) {
+            selectedDNS = customDNSLineEdit->text();
+        } else {
+            selectedDNS = dnsComboBox->currentText();
+        }
+        selectedDNSLabel->setText("Selected DNS server: " + selectedDNS);
+    }
+
+private:
+    QComboBox *dnsComboBox;
+    QLineEdit *customDNSLineEdit;
+    QLabel *selectedDNSLabel;
+    QStringList defaultDNS;
 };
 
-class DNSConfigurationApp : public wxApp {
-public:
-    virtual bool OnInit() {
-        DNSConfigurationFrame* frame = new DNSConfigurationFrame("DNS Configuration App");
-        frame->Show(true);
-        return true;
-    }
-};
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
 
-wxIMPLEMENT_APP(DNSConfigurationApp);
+    DNSConfigurationApp window;
+    window.setWindowTitle("DNS Configuration");
+    window.resize(400, 200);
+    window.show();
+
+    return app.exec();
+}
+
+#include "main.moc"
