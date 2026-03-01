@@ -1,0 +1,30 @@
+{
+    "杭州节点": {
+        "state": "true",
+        "url": "cn-zj-hz-1.lcf.im:34907"
+    },
+    "宁波节点": {
+        "state": "true",
+        "url": "cn-zj-nb-1.lcf.im:37190"
+    },
+    "娄底节点": {
+        "state": "true",
+        "url": "cn-hn-ld-1.lcf.im:24151"
+    },
+    "武汉节点": {
+        "state": "true",
+        "url": "cn-hb-wh-1.lcf.im:36587"
+    },
+    "备用1节点": {
+        "state": "true",
+        "url": "57c42474b0ea.ofalias.net:54658"
+    },
+    "备用2节点": {
+        "state": "true",
+        "url": "7e526c6c1d80.ofalias.net:51597"
+    },
+    "雨云节点": {
+        "state": "true",
+        "url": "im.rainplay.cn:59426"
+    }
+}
